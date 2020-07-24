@@ -1,34 +1,32 @@
 import { ExpoWebGLRenderingContext, GLView } from "expo-gl";
-import { Renderer, TextureLoader } from "expo-three";
+import { Renderer } from "expo-three";
 import OrbitControlsView from "expo-three-orbit-controls";
 import * as React from "react";
 import {
-	AmbientLight,
-	BoxBufferGeometry,
 	Fog,
 	GridHelper,
-	Mesh,
-	MeshStandardMaterial,
 	PerspectiveCamera,
-	PointLight,
 	Scene,
-	SpotLight,
 	Camera,
 	AnimationMixer,
-	PlaneBufferGeometry,
-	MeshPhongMaterial,
 	HemisphereLight,
 	DirectionalLight,
+	Clock,
+	LOD,
 } from "three";
-import { FBXLoader } from "./node_modules/three/examples/jsm/loaders/FBXLoader";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { Asset } from "expo-asset";
 
 export default function App() {
 	const [camera, setCamera] = React.useState<Camera | null>(null);
-
+	let mixer;
 	let timeout;
+	var clock = new Clock();
 
 	React.useEffect(() => {
 		// Clear the animation loop when the component unmounts
+
 		return () => clearTimeout(timeout);
 	}, []);
 
@@ -41,19 +39,15 @@ export default function App() {
 		renderer.setSize(width, height);
 		renderer.setClearColor(sceneColor);
 
-		// const camera = new PerspectiveCamera(70, width / height, 0.01, 1000);
-		const camera = new PerspectiveCamera(45, width / height, 1, 2000);
-		// camera.position.set(2, 5, 5);
-		camera.position.set(300, 300, 300);
+		const camera = new PerspectiveCamera(90, width / height, 1, 2000);
+		camera.position.set(200, 300, 400);
 
 		setCamera(camera);
 
 		const scene = new Scene();
 		scene.fog = new Fog(sceneColor, 1, 10000);
-		// scene.add(new GridHelper(10, 10));
 		var grid = new GridHelper(2000, 20, 0x000000, 0x000000);
-		// grid.material.opacity = 0.2;
-		// grid.material.transparent = true;
+
 		scene.add(grid);
 
 		var light = new HemisphereLight(0xffffff, 0x444444);
@@ -69,72 +63,57 @@ export default function App() {
 		light2.shadow.camera.right = 120;
 		scene.add(light2);
 
-		// const ambientLight = new AmbientLight(0x101010);
-		// scene.add(ambientLight);
-
-		// const pointLight = new PointLight(0xffffff, 2, 1000, 1);
-		// pointLight.position.set(0, 200, 200);
-		// scene.add(pointLight);
-
-		// const spotLight = new SpotLight(0xffffff, 0.5);
-		// spotLight.position.set(0, 500, 100);
-		// spotLight.lookAt(scene.position);
-		// scene.add(spotLight);
-
-		// ground
-		// var mesh = new Mesh(
-		// 	new PlaneBufferGeometry(2000, 2000),
-		// 	new MeshPhongMaterial({ color: 0x999999, depthWrite: false })
-		// );
-		// mesh.rotation.x = -Math.PI / 2;
-		// mesh.receiveShadow = true;
-		// scene.add(mesh);
-
+		// var loader = new GLTFLoader();
 		var loader = new FBXLoader();
-		console.log(loader);
-		// loader.load("./test.fbx", (object) => {
 		loader.load(
+			// "https://github.com/Abhimanyu-Jha/tweek-app/raw/master/Zombie%20Stand%20Up.fbx",
+			// "https://github.com/Abhimanyu-Jha/tweek-app/blob/master/Capoeira.fbx",
 			"https://threejs.org/examples/models/fbx/Samba%20Dancing.fbx",
-			(object) => {
-				console.log(object.children);
-				var mixer = new AnimationMixer(object);
-
-				var action = mixer.clipAction(object.animations[0]);
-				action.play();
-
-				// object.traverse(function (child) {
-				// 	if (child.isMesh) {
-				// 		child.castShadow = true;
-				// 		child.receiveShadow = true;
-				// 	}
+			// "scene.gltf",
+			// "./test.fbx",
+			// "Zombie Stand Up.fbx",
+			async (object) => {
+				// console.log(object.animations[0]);
+				// var loader2 = new GLTFLoader();
+				// const asset = Asset.fromModule(
+				// 	require("./Zombie Stand Up.fbx")
+				// );
+				// console.log("starting.....");
+				// await asset.downloadAsync().catch((err) => {
+				// 	console.error(err);
 				// });
+				// console.log("got the asset");
+				// console.log(asset.localUri);
+				var loader2 = new FBXLoader();
+				loader2.load(
+					// "https://github.com/Abhimanyu-Jha/tweek-app/raw/master/Zombie%20Stand%20Up.fbx",
+					"https://threejs.org/examples/models/fbx/Samba%20Dancing.fbx",
+					// asset.localUri,
+					(object2) => {
+						console.log(object2.animations[0]);
+						mixer = new AnimationMixer(object);
+						var action = mixer.clipAction(object2.animations[0]);
+						action.play();
 
-				scene.add(object);
+						object.traverse(function (child) {
+							if (child.isMesh) {
+								child.castShadow = true;
+								child.receiveShadow = true;
+							}
+						});
+						var lod = new LOD();
+						lod.addLevel(object, 10);
+						scene.add(object);
+					}
+				);
 			}
 		);
-		console.log(
-			"loaderloaderloaderloaderloaderloaderloaderloaderloaderloaderloaderloaderloader"
-		);
 
-		console.log(loader);
-
-		// const cube = new IconMesh();
-		// scene.add(cube);
-
-		// camera.lookAt(cube.position);
-
-		// function update() {
-		// 	cube.rotation.y += 0.05;
-		// 	cube.rotation.x += 0.025;
-		// }
-
-		// Setup an animation loop
 		const render = () => {
 			timeout = requestAnimationFrame(render);
-			// update();
+			var delta = clock.getDelta();
+			if (mixer) mixer.update(delta);
 			renderer.render(scene, camera);
-
-			// ref.current.getControls()?.update();
 			gl.endFrameEXP();
 		};
 		render();
@@ -149,15 +128,4 @@ export default function App() {
 			/>
 		</OrbitControlsView>
 	);
-}
-
-class IconMesh extends Mesh {
-	constructor() {
-		super(
-			new BoxBufferGeometry(1.0, 1.0, 1.0),
-			new MeshStandardMaterial({
-				map: new TextureLoader().load(require("./icon.jpg")),
-			})
-		);
-	}
 }
