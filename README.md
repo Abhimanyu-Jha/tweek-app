@@ -2,8 +2,8 @@
 
 ## Setup
 
-> Install Expo `npm install expo-cli --global`
-> Install Expo client from playstore
+> First, install Expo `npm install expo-cli --global`
+> then, install Expo client from playstore
 
 ## Get Started
 
