@@ -39,7 +39,7 @@ export default function App() {
 		renderer.setSize(width, height);
 		renderer.setClearColor(sceneColor);
 
-		const camera = new PerspectiveCamera(90, width / height, 1, 2000);
+		const camera = new PerspectiveCamera(45, width / height, 1, 2000);
 		camera.position.set(200, 300, 400);
 
 		setCamera(camera);
@@ -64,11 +64,15 @@ export default function App() {
 		scene.add(light2);
 
 		// var loader = new GLTFLoader();
+		const asset = Asset.fromModule(require('./assets/Model.fbx'));
+		await asset.downloadAsync();
+		console.log(asset.uri)
 		var loader = new FBXLoader();
 		loader.load(
+			asset.uri,
 			// "https://github.com/Abhimanyu-Jha/tweek-app/raw/master/Zombie%20Stand%20Up.fbx",
 			// "https://github.com/Abhimanyu-Jha/tweek-app/blob/master/Capoeira.fbx",
-			"https://threejs.org/examples/models/fbx/Samba%20Dancing.fbx",
+			// "https://threejs.org/examples/models/fbx/Samba%20Dancing.fbx",
 			// "scene.gltf",
 			// "./test.fbx",
 			// "Zombie Stand Up.fbx",
@@ -84,13 +88,15 @@ export default function App() {
 				// });
 				// console.log("got the asset");
 				// console.log(asset.localUri);
+				console.log("Loaded model to scene.")
 				var loader2 = new FBXLoader();
 				loader2.load(
 					// "https://github.com/Abhimanyu-Jha/tweek-app/raw/master/Zombie%20Stand%20Up.fbx",
-					"https://threejs.org/examples/models/fbx/Samba%20Dancing.fbx",
-					// asset.localUri,
+					// "https://threejs.org/examples/models/fbx/Samba%20Dancing.fbx",
+					asset.uri,
 					(object2) => {
-						console.log(object2.animations[0]);
+						// console.log(object2.animations[0]);
+						console.log("Loaded animation to scene.")
 						mixer = new AnimationMixer(object);
 						var action = mixer.clipAction(object2.animations[0]);
 						action.play();
@@ -106,7 +112,13 @@ export default function App() {
 						scene.add(object);
 					}
 				);
-			}
+			},
+			function ( xhr ) {
+				console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+			},
+			function ( err ) {
+				console.log( err );
+			}		
 		);
 
 		const render = () => {
