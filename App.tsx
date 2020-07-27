@@ -22,7 +22,7 @@ import { View, Text } from "react-native";
 import { Button } from "react-native-paper";
 export default function App() {
 	const [appState, setAppState] = React.useState(null);
-	const [cameraX, setCameraX] = React.useState(200);
+	const [cameraX, setCameraX] = React.useState(100);
 
 	const [camera, setCamera] = React.useState<Camera | null>(null);
 	let mixer;
@@ -46,8 +46,8 @@ export default function App() {
 		renderer.setSize(width, height);
 		renderer.setClearColor(sceneColor);
 
-		const camera = new PerspectiveCamera(45, width / height, 1, 2000);
-		camera.position.set(cameraX, 300, 400);
+		const camera = new PerspectiveCamera(60, width / height, 1, 2000);
+		camera.position.set(0, cameraX, 400);
 
 		setCamera(camera);
 
@@ -70,7 +70,7 @@ export default function App() {
 		light2.shadow.camera.right = 120;
 		scene.add(light2);
 
-		setAppState("loading model");
+		setAppState("Loading Model");
 		// const asset = Asset.fromModule(require("./assets/Model.fbx"));
 		const asset = Asset.fromModule(require("./ybot.fbx"));
 		await asset.downloadAsync();
@@ -79,23 +79,26 @@ export default function App() {
 		// var modelLoader = new GLTFLoader();
 		var modelLoader = new FBXLoader();
 		modelLoader.load(
-			asset.uri,
+			// asset.uri,
 			// "https://github.com/Abhimanyu-Jha/tweek-app/raw/master/Zombie%20Stand%20Up.fbx",
 			// "https://github.com/Abhimanyu-Jha/tweek-app/blob/master/Capoeira.fbx",
 			// "https://threejs.org/examples/models/fbx/Samba%20Dancing.fbx",
 			// "scene.gltf",
 			// "./test.fbx",
 			// "Zombie Stand Up.fbx",
+			"https://github.com/Abhimanyu-Jha/tweek-app/raw/master/ybot.fbx",
 			async (object) => {
-				setAppState("Loaded model to scene.");
+				setAppState("Loading Animation");
 				console.log("Loaded model to scene.");
 				var animationLoader = new FBXLoader();
+				// var animationLoader = new GLTFLoader();
 				animationLoader.load(
 					// "https://github.com/Abhimanyu-Jha/tweek-app/raw/master/Zombie%20Stand%20Up.fbx",
 					"https://threejs.org/examples/models/fbx/Samba%20Dancing.fbx",
+					// "https://github.com/Abhimanyu-Jha/tweek-app/raw/master/ybot.glb",
 					// asset.uri,
 					(object2) => {
-						setAppState("Loaded Animation to scene.");
+						setAppState("Loaded Animation.");
 						// console.log(object2.animations[0]);
 						console.log("Loaded animation to scene.");
 						mixer = new AnimationMixer(object);
@@ -136,7 +139,8 @@ export default function App() {
 		<View style={{ flex: 1 }}>
 			<OrbitControlsView
 				style={{
-					flex: 0.8,
+					flex: 1,
+					position: "relative",
 				}}
 				camera={camera}
 			>
@@ -146,22 +150,40 @@ export default function App() {
 					key="d"
 				/>
 			</OrbitControlsView>
-			<Text
+			<View
 				style={{
-					fontSize: 24,
+					position: "absolute",
+					bottom: 0,
+					alignSelf: "center",
+					paddingBottom: 50,
 				}}
 			>
-				{appState}
-			</Text>
-			<Button
-				mode="outlined"
-				onPress={() => {
-					setCameraX(cameraX + 100);
-					camera.position.set(cameraX, 300, 400);
-				}}
-			>
-				Change Camera
-			</Button>
+				<Text
+					style={{
+						fontSize: 24,
+					}}
+				>
+					{appState}
+				</Text>
+				<Button
+					mode="outlined"
+					onPress={() => {
+						setCameraX(cameraX + 100);
+						camera.position.set(0, cameraX, 400);
+					}}
+				>
+					Camera++
+				</Button>
+				<Button
+					mode="outlined"
+					onPress={() => {
+						setCameraX(cameraX - 100);
+						camera.position.set(0, cameraX, 400);
+					}}
+				>
+					Camera--
+				</Button>
+			</View>
 		</View>
 	);
 }
