@@ -16,13 +16,17 @@ import {
 } from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import Stats from "three/examples/jsm/libs/stats.module.js";
 import { Asset } from "expo-asset";
+import { View, Button, Text } from "react-native";
 
 export default function App() {
 	const [camera, setCamera] = React.useState<Camera | null>(null);
 	let mixer;
 	let timeout;
 	var clock = new Clock();
+	var stats = new Stats();
+	stats.showPanel();
 
 	React.useEffect(() => {
 		// Clear the animation loop when the component unmounts
@@ -39,7 +43,7 @@ export default function App() {
 		renderer.setSize(width, height);
 		renderer.setClearColor(sceneColor);
 
-		const camera = new PerspectiveCamera(90, width / height, 1, 2000);
+		const camera = new PerspectiveCamera(45, width / height, 1, 2000);
 		camera.position.set(200, 300, 400);
 
 		setCamera(camera);
@@ -90,7 +94,7 @@ export default function App() {
 					"https://threejs.org/examples/models/fbx/Samba%20Dancing.fbx",
 					// asset.localUri,
 					(object2) => {
-						console.log(object2.animations[0]);
+						// console.log(object2.animations[0]);
 						mixer = new AnimationMixer(object);
 						var action = mixer.clipAction(object2.animations[0]);
 						action.play();
@@ -120,12 +124,15 @@ export default function App() {
 	};
 
 	return (
-		<OrbitControlsView style={{ flex: 1 }} camera={camera}>
-			<GLView
-				style={{ flex: 1 }}
-				onContextCreate={onContextCreate}
-				key="d"
-			/>
-		</OrbitControlsView>
+		<>
+			<OrbitControlsView style={{ flex: 1 }} camera={camera}>
+				<GLView
+					style={{ flex: 1 }}
+					onContextCreate={onContextCreate}
+					key="d"
+				/>
+			</OrbitControlsView>
+			<Text>Hello world</Text>
+		</>
 	);
 }
