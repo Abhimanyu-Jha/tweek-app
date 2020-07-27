@@ -63,7 +63,7 @@ export default function App() {
 
 		const scene = new Scene();
 		scene.fog = new Fog(sceneColor, 1, 10000);
-		var grid = new GridHelper(2000, 20, 0x000000, 0x000000);
+		var grid = new GridHelper(200, 5, 0xaaa000, 0x000000);
 
 		scene.add(grid);
 
@@ -82,8 +82,8 @@ export default function App() {
 
 		setAppState("Loading Model");
 		// const asset = Asset.fromModule(require("./assets/Model.fbx"));
-		// const asset = Asset.fromModule(require("./characters/ybot.fbx"));
-		const asset = Asset.fromModule(require("./characters/xbot.fbx"));
+		const asset = Asset.fromModule(require("./characters/ybot.fbx"));
+		// const asset = Asset.fromModule(require("./characters/xbot.fbx"));
 		await asset.downloadAsync();
 		console.log(asset.uri);
 
