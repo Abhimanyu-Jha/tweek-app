@@ -20,6 +20,16 @@ import Stats from "three/examples/jsm/libs/stats.module.js";
 import { Asset } from "expo-asset";
 import { View, Text } from "react-native";
 import { Button } from "react-native-paper";
+import { decode, encode } from "base-64";
+
+if (!global.btoa) {
+	global.btoa = encode;
+}
+
+if (!global.atob) {
+	global.atob = decode;
+}
+
 export default function App() {
 	const [appState, setAppState] = React.useState(null);
 	const [cameraX, setCameraX] = React.useState(100);
@@ -72,21 +82,22 @@ export default function App() {
 
 		setAppState("Loading Model");
 		// const asset = Asset.fromModule(require("./assets/Model.fbx"));
-		const asset = Asset.fromModule(require("./ybot.fbx"));
+		// const asset = Asset.fromModule(require("./characters/ybot.fbx"));
+		const asset = Asset.fromModule(require("./characters/xbot.fbx"));
 		await asset.downloadAsync();
 		console.log(asset.uri);
 
 		// var modelLoader = new GLTFLoader();
 		var modelLoader = new FBXLoader();
 		modelLoader.load(
-			// asset.uri,
+			asset.uri,
 			// "https://github.com/Abhimanyu-Jha/tweek-app/raw/master/Zombie%20Stand%20Up.fbx",
 			// "https://github.com/Abhimanyu-Jha/tweek-app/blob/master/Capoeira.fbx",
 			// "https://threejs.org/examples/models/fbx/Samba%20Dancing.fbx",
 			// "scene.gltf",
 			// "./test.fbx",
 			// "Zombie Stand Up.fbx",
-			"https://github.com/Abhimanyu-Jha/tweek-app/raw/master/ybot.fbx",
+			// "https://github.com/Abhimanyu-Jha/tweek-app/raw/master/ybot.gltf",
 			async (object) => {
 				setAppState("Loading Animation");
 				console.log("Loaded model to scene.");
@@ -101,18 +112,19 @@ export default function App() {
 						setAppState("Loaded Animation.");
 						// console.log(object2.animations[0]);
 						console.log("Loaded animation to scene.");
+						// mixer = new AnimationMixer(object.scene);
 						mixer = new AnimationMixer(object);
 						var action = mixer.clipAction(object2.animations[0]);
 						action.play();
 
+						// object.scene.traverse(function (child) {
 						object.traverse(function (child) {
 							if (child.isMesh) {
 								child.castShadow = true;
 								child.receiveShadow = true;
 							}
 						});
-						var lod = new LOD();
-						lod.addLevel(object, 10);
+						// scene.add(object.scene);
 						scene.add(object);
 					}
 				);
@@ -168,8 +180,11 @@ export default function App() {
 				<Button
 					mode="outlined"
 					onPress={() => {
-						setCameraX(cameraX + 100);
-						camera.position.set(0, cameraX, 400);
+						camera.position.set(
+							camera.position.x + 100,
+							camera.position.y,
+							camera.position.z
+						);
 					}}
 				>
 					Camera++
@@ -177,8 +192,11 @@ export default function App() {
 				<Button
 					mode="outlined"
 					onPress={() => {
-						setCameraX(cameraX - 100);
-						camera.position.set(0, cameraX, 400);
+						camera.position.set(
+							camera.position.x - 100,
+							camera.position.y,
+							camera.position.z
+						);
 					}}
 				>
 					Camera--
