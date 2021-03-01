@@ -9,7 +9,7 @@
 		"react-native": "https://github.com/expo/react-native/archive/sdk-38.0.2.tar.gz",
 		"react-native-paper": "^4.0.1",
 		"react-native-web": "0.11.7",
-		"three": "^0.118.3"
+		"three": "^0.125.0"
 	},
 	"devDependencies": {
 		"@babel/core": "7.9.0",
